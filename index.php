@@ -36,7 +36,7 @@ if (isset($_GET['delete'])) {
 }
 
 $estudiantes = $pdo->query(
-    "SELECT * FROM estudiantes ORDER BY creado_en DESC"
+    "SELECT * FROM estudiantes ORDER BY fe_crea DESC"
 )->fetchAll();
 
 ?>
@@ -77,6 +77,7 @@ $estudiantes = $pdo->query(
     <th>Nombre</th>
     <th>Email</th>
     <th>Carrera</th>
+    <th>Fecha</th>
     <th>Acciones</th>
 </tr>
 
@@ -85,12 +86,10 @@ $estudiantes = $pdo->query(
 <tr>
 
 <td><?= $e['id'] ?></td>
-
 <td><?= htmlspecialchars($e['nombre']) ?></td>
-
 <td><?= htmlspecialchars($e['email']) ?></td>
-
 <td><?= htmlspecialchars($e['carrera']) ?></td>
+<td><?= $e['fe_crea'] ?></td>
 
 <td>
     <a href="?delete=<?= $e['id'] ?>"
