@@ -34,19 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
     }
 
     if (empty($errores)) {
-            if ($id) {
-                // Si ya existe el ID, usamos la sentencia UPDATE
-                $stmt = $pdo->prepare("UPDATE estudiantes SET nombre=:n, email=:e, carrera=:c WHERE id=:id");
-                $stmt->execute([':n' => $nombre, ':e' => $email, ':c' => $carrera, ':id' => $id]);
-            } else {
-                // Si no hay ID hacemos el INSERT que teniamos
-                $stmt = $pdo->prepare("INSERT INTO estudiantes (nombre, email, carrera) VALUES (:n, :e, :c)");
-                $stmt->execute([':n' => $nombre, ':e' => $email, ':c' => $carrera]);
-            }
-            header('Location: /'); 
-            exit;
-        }
-
     if ($id) {
         // Si ya existe el ID, usamos la sentencia UPDATE
         $stmt = $pdo->prepare("UPDATE estudiantes SET nombre=:n, email=:e, carrera=:c WHERE id=:id");
@@ -57,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
         $stmt->execute([':n' => $nombre, ':e' => $email, ':c' => $carrera]);
     }
     header('Location: /'); exit;
+
+    }
 }
 
 if (isset($_GET['delete'])) {
