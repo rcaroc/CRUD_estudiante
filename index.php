@@ -152,6 +152,12 @@ $estudiantes = $stmt->fetchAll();
     </a>
 </td>
 
+</tr>
+
+<?php endforeach; ?>
+
+</table>
+
 <div style="margin-top: 20px; text-align: center;">
     
     <?php if ($pagina_actual > 1): ?>
@@ -171,12 +177,5 @@ $estudiantes = $stmt->fetchAll();
     <?php endif; ?>
 
 </div>
-
-</tr>
-
-<?php endforeach; ?>
-
-</table>
-
 </body>
 </html>
