@@ -12,14 +12,26 @@ if (isset($_GET['edit'])) {
     $estudiante_a_editar = $stmt->fetch();
 }
 
+$errores = []; // Creamos una lista para guardar los mensajes de error
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
     // Ingresamos los datos
-    $nombre = htmlspecialchars($_POST['nombre']);
+    $nombre = trim($_POST['nombre']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $carrera = htmlspecialchars($_POST['carrera']);
     
     // Recogemos el ID si es que viene del formulario
     $id = isset($_POST['id_editar']) ? (int)$_POST['id_editar'] : null;
+
+    // Agregamos verificacion de formato de email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errores[] = "El formato del email no es válido.";
+    }
+
+    // Agregamos verificacion de longitud del nombre
+    if (strlen($nombre) < 3 || strlen($nombre) > 100) {
+        $errores[] = "El nombre debe tener entre 3 y 100 caracteres.";
+    }
 
     if ($id) {
         // Si ya existe el ID, usamos la sentencia UPDATE
@@ -60,7 +72,15 @@ $estudiantes = $pdo->query(
     <title>Gestión de Estudiantes</title>
 </head>
 <body>
-
+<?php if (!empty($errores)): ?>
+    <div style="background-color: #ffcccc; color: #cc0000; padding: 10px; border: 1px solid #cc0000; margin-bottom: 20px;">
+        <ul>
+            <?php foreach ($errores as $error): ?>
+                <li><?= $error ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 <h2>Registrar Estudiante</h2>
 
 <form method="POST">
