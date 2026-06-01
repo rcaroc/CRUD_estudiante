@@ -4,6 +4,8 @@ require_once 'config/database.php';
 
 $pdo = getDBConnection();
 
+$estudiante_a_editar = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
     // Ingresamos los datos
     $nombre = htmlspecialchars($_POST['nombre']);
