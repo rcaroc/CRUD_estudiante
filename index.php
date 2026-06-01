@@ -5,20 +5,24 @@ require_once 'config/database.php';
 $pdo = getDBConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
+    // Ingresamos los datos
+    $nombre = htmlspecialchars($_POST['nombre']);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $carrera = htmlspecialchars($_POST['carrera']);
+    
+    // Recogemos el ID si es que viene del formulario
+    $id = isset($_POST['id_editar']) ? (int)$_POST['id_editar'] : null;
 
-    $stmt = $pdo->prepare(
-        "INSERT INTO estudiantes (nombre, email, carrera)
-         VALUES (:n, :e, :c)"
-    );
-
-    $stmt->execute([
-        ':n' => htmlspecialchars($_POST['nombre']),
-        ':e' => filter_var($_POST['email'], FILTER_SANITIZE_EMAIL),
-        ':c' => htmlspecialchars($_POST['carrera']),
-    ]);
-
-    header('Location: /');
-    exit;
+    if ($id) {
+        // Si ya existe el ID, usamos la sentencia UPDATE
+        $stmt = $pdo->prepare("UPDATE estudiantes SET nombre=:n, email=:e, carrera=:c WHERE id=:id");
+        $stmt->execute([':n' => $nombre, ':e' => $email, ':c' => $carrera, ':id' => $id]);
+    } else {
+        // Si no hay ID hacemos el INSERT que teniamos
+        $stmt = $pdo->prepare("INSERT INTO estudiantes (nombre, email, carrera) VALUES (:n, :e, :c)");
+        $stmt->execute([':n' => $nombre, ':e' => $email, ':c' => $carrera]);
+    }
+    header('Location: /'); exit;
 }
 
 if (isset($_GET['delete'])) {
@@ -52,17 +56,15 @@ $estudiantes = $pdo->query(
 <h2>Registrar Estudiante</h2>
 
 <form method="POST">
+    <input type="hidden" name="id_editar" value="<?= $estudiante_a_editar['id'] ?? '' ?>">
 
-    <input name="nombre" placeholder="Nombre completo" required>
-
-    <input name="email" type="email" placeholder="Email" required>
-
-    <input name="carrera" placeholder="Carrera" required>
+    <input name="nombre" value="<?= $estudiante_a_editar['nombre'] ?? '' ?>" required>
+    <input name="email" value="<?= $estudiante_a_editar['email'] ?? '' ?>" required>
+    <input name="carrera" value="<?= $estudiante_a_editar['carrera'] ?? '' ?>" required>
 
     <button type="submit">
-        Guardar
+        <?= $estudiante_a_editar ? 'Actualizar' : 'Guardar' ?>
     </button>
-
 </form>
 
 <h2>
@@ -92,6 +94,10 @@ $estudiantes = $pdo->query(
 <td><?= $e['fe_crea'] ?></td>
 
 <td>
+    <a href="?edit=<?= $e['id'] ?>" style="margin-right: 10px;">
+       Editar
+    </a>
+
     <a href="?delete=<?= $e['id'] ?>"
        onclick="return confirm('¿Eliminar?')">
        Eliminar
