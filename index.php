@@ -63,20 +63,21 @@ if (isset($_GET['delete'])) {
 }
 
 
+// Capturar el termino de busqueda ---
+$busqueda = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// Configuracin de la pagina 
 $estudiantes_por_pagina = 5;
-// Leemos la página actual desde la URL index.php?p=2
 $pagina_actual = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 if ($pagina_actual < 1) $pagina_actual = 1;
-
-// Cálculo del desplazamiento (OFFSET)
-// Si estoy en pág 1 (1-1) * 5 = 0 (no se salta ninguno)
-// Si estoy en pág 2 (2-1) * 5 = 5 (se salta los primeros 5)
 $offset = ($pagina_actual - 1) * $estudiantes_por_pagina;
 
-// Consulta preparada con LIMIT y OFFSET
-$stmt = $pdo->prepare("SELECT * FROM estudiantes ORDER BY fe_crea DESC LIMIT :limit OFFSET :offset");
+// Consulta con FILTRO (LIKE)
+// Si hay busqueda, añadimos el WHERE nombre LIKE ...
+$sql = "SELECT * FROM estudiantes WHERE nombre LIKE :search ORDER BY fe_crea DESC LIMIT :limit OFFSET :offset";
+$stmt = $pdo->prepare($sql);
 
-// bindValue es necesario porque LIMIT/OFFSET solo aceptan números enteros
+$stmt->bindValue(':search', '%' . $busqueda . '%', PDO::PARAM_STR);
 $stmt->bindValue(':limit', $estudiantes_por_pagina, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -119,6 +120,14 @@ $estudiantes = $stmt->fetchAll();
     Lista de Estudiantes
     (<?= count($estudiantes) ?>)
 </h2>
+
+<form method="GET" style="margin-bottom: 20px;">
+    <input type="text" name="search" placeholder="Buscar por nombre..." value="<?= htmlspecialchars($busqueda) ?>">
+    <button type="submit">Buscar</button>
+    <?php if ($busqueda): ?>
+        <a href="index.php">Limpiar filtro</a>
+    <?php endif; ?>
+</form>
 
 <table border="1">
 
