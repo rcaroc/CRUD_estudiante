@@ -6,6 +6,12 @@ $pdo = getDBConnection();
 
 $estudiante_a_editar = null;
 
+if (isset($_GET['edit'])) {
+    $stmt = $pdo->prepare("SELECT * FROM estudiantes WHERE id = :id");
+    $stmt->execute([':id' => (int)$_GET['edit']]);
+    $estudiante_a_editar = $stmt->fetch();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
     // Ingresamos los datos
     $nombre = htmlspecialchars($_POST['nombre']);
